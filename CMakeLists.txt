@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(lsap)
+project(lsap VERSION 1.0 DESCRIPTION "Tool to find Wifi access points written in C++")
 
 
 set(CMAKE_CXX_STANDARD 17)
@@ -28,10 +28,24 @@ set(LIBRARIES "")
 
 # Build executable
 add_executable(lsap ${SOURCES})
+
+# Link own libraries
+
+add_library(netutils SHARED ${SRCDIR}/netutils/netutils.cpp)
+
+target_link_libraries(lsap PRIVATE netutils)
+
+# Link external libraries
 target_include_directories(lsap PRIVATE ${INCLUDEDIR}) # header locations for libraries
 
 target_link_directories(lsap PRIVATE ${LIBDIR}) # specify directory of the libraries
 
 target_link_libraries(lsap PRIVATE ${LIBRARIES}) # link libraries
+
+# Set capabilities for the executable
+add_custom_command(TARGET lsap
+    POST_BUILD
+    COMMAND sudo setcap cap_net_raw+eip lsap
+)
 
 
